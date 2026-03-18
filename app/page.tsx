@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect, useRef } from 'react';
 
-// Ikon-ikon tetap sama
+// --- Komponen Ikon SVG (Internal) ---
 const IconPlay = () => <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg>;
 const IconSquare = () => <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect></svg>;
 const IconMessage = () => <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>;
@@ -14,9 +14,9 @@ export default function App() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isRunning, setIsRunning] = useState(false);
   const [targetText, setTargetText] = useState("");
-  const iframeRef = useRef<HTMLIFrameElement>(null);
   const automationTimer = useRef<any>(null);
 
+  // Membersihkan timer saat aplikasi ditutup
   useEffect(() => {
     return () => {
       if (automationTimer.current) window.clearInterval(automationTimer.current);
@@ -33,13 +33,13 @@ export default function App() {
   };
 
   const startAutomation = () => {
-    if (!targetText.trim()) return alert("Teks kosong!");
+    if (!targetText.trim()) return alert("Masukkan teks komentar dulu!");
     setIsRunning(true);
     setIsMenuOpen(false);
     
+    // Kecepatan scroll otomatis (4 detik sekali)
     automationTimer.current = window.setInterval(() => {
-      // Scroll dilakukan di dalam window utama aplikasi
-      window.scrollBy({ top: 600, behavior: 'smooth' });
+      window.scrollBy({ top: window.innerHeight * 0.8, behavior: 'smooth' });
     }, 4000); 
   };
 
@@ -52,65 +52,92 @@ export default function App() {
   };
 
   return (
-    <div className="relative h-screen w-full bg-black flex flex-col overflow-hidden">
+    <div className="relative h-screen w-full bg-black flex flex-col overflow-hidden select-none">
       
-      {/* JENDELA TIKTOK - Ini yang membuat seolah-olah bot mengembang di TikTok */}
-      <div className="flex-1 w-full bg-slate-800">
+      {/* 1. JENDELA TIKTOK (UTAMA) */}
+      <div className="flex-1 w-full relative z-10">
         <iframe 
-          ref={iframeRef}
-          src="https://www.tiktok.com/foryou" 
+          src="https://www.tiktok.com/explore" 
           className="w-full h-full border-none"
           title="TikTok"
           allow="autoplay; clipboard-write"
+          style={{ pointerEvents: isMenuOpen ? 'none' : 'auto' }}
         />
       </div>
 
-      {/* OVERLAY INDIKATOR */}
+      {/* 2. OVERLAY STATUS (WAKTU BOT AKTIF) */}
       {isRunning && (
-        <div className="absolute top-10 left-1/2 -translate-x-1/2 bg-red-600/90 text-white px-5 py-2 rounded-full text-[10px] font-bold animate-pulse z-50 shadow-2xl border border-red-400 backdrop-blur-md">
-          OTOMATISASI AKTIF
+        <div className="absolute top-12 left-1/2 -translate-x-1/2 z-50">
+          <div className="bg-red-600 text-white px-4 py-1.5 rounded-full text-[10px] font-bold animate-pulse flex items-center gap-2 shadow-xl border border-red-400">
+            <div className="w-2 h-2 bg-white rounded-full animate-ping"></div>
+            BOT SCROLL AKTIF
+          </div>
         </div>
       )}
 
-      {/* MENU KONTROL MELAYANG */}
+      {/* 3. MENU KONTROL (FLOATING) */}
       <div className="absolute bottom-10 right-6 flex flex-col items-end gap-4 z-50">
+        
+        {/* Panel Pengaturan */}
         {isMenuOpen && (
-          <div className="bg-slate-900/95 backdrop-blur-xl border border-white/10 p-5 rounded-3xl shadow-2xl w-72 mb-2 animate-in fade-in zoom-in duration-200">
+          <div className="bg-slate-900/95 backdrop-blur-md border border-white/10 p-5 rounded-[2.5rem] shadow-2xl w-72 mb-2 animate-in fade-in slide-in-from-bottom-4 duration-300">
             <div className="flex justify-between items-center mb-4 text-white">
-              <h3 className="font-bold flex items-center gap-2 text-xs uppercase tracking-tighter">
-                <IconSettings /> Pengaturan Bot
+              <h3 className="font-bold flex items-center gap-2 text-[11px] uppercase tracking-widest opacity-70">
+                <IconSettings /> Menu Otomatisasi
               </h3>
-              <button onClick={() => setIsMenuOpen(false)} className="text-white/40"><IconX /></button>
+              <button onClick={() => setIsMenuOpen(false)} className="hover:rotate-90 transition-transform">
+                <IconX />
+              </button>
             </div>
 
             <div className="space-y-4">
-              <textarea 
-                value={targetText}
-                onChange={(e) => setTargetText(e.target.value)}
-                placeholder="Isi komentar otomatis..."
-                className="w-full bg-black/50 border border-white/10 rounded-2xl p-4 text-sm text-white focus:outline-none h-24 resize-none"
-              />
-              
+              <div className="relative">
+                <textarea 
+                  value={targetText}
+                  onChange={(e) => setTargetText(e.target.value)}
+                  placeholder="Isi teks komentar di sini..."
+                  className="w-full bg-black/40 border border-white/10 rounded-2xl p-4 text-sm text-white focus:outline-none focus:border-blue-500 h-28 resize-none transition-all"
+                />
+                <button 
+                  onClick={handlePaste} 
+                  className="absolute bottom-3 right-3 p-2 bg-white/5 hover:bg-white/10 rounded-xl text-white/50 border border-white/5"
+                >
+                  <IconClipboard />
+                </button>
+              </div>
+
               {!isRunning ? (
-                <button onClick={startAutomation} className="w-full bg-blue-600 text-white font-bold py-4 rounded-2xl flex items-center justify-center gap-2 shadow-lg shadow-blue-500/20">
-                  <IconPlay /> AKTIFKAN BOT
+                <button 
+                  onClick={startAutomation} 
+                  className="w-full bg-blue-600 hover:bg-blue-500 text-white font-bold py-4 rounded-2xl flex items-center justify-center gap-2 active:scale-95 transition-all shadow-lg shadow-blue-600/20"
+                >
+                  <IconPlay /> MULAI SCROLL
                 </button>
               ) : (
-                <button onClick={stopAutomation} className="w-full bg-red-600 text-white font-bold py-4 rounded-2xl flex items-center justify-center gap-2 shadow-lg shadow-red-500/20">
-                  <IconSquare /> MATIKAN BOT
+                <button 
+                  onClick={stopAutomation} 
+                  className="w-full bg-red-600 hover:bg-red-500 text-white font-bold py-4 rounded-2xl flex items-center justify-center gap-2 active:scale-95 transition-all shadow-lg shadow-red-600/20"
+                >
+                  <IconSquare /> BERHENTI
                 </button>
               )}
             </div>
           </div>
         )}
 
+        {/* Tombol Utama (Buka/Tutup Menu) */}
         <button 
           onClick={() => setIsMenuOpen(!isMenuOpen)}
-          className={`w-14 h-14 rounded-full shadow-2xl flex items-center justify-center transition-all ${isRunning ? 'bg-red-600 animate-bounce' : 'bg-white text-black'}`}
+          className={`w-16 h-16 rounded-full shadow-2xl flex items-center justify-center transition-all duration-300 border-4 border-white/10 ${
+            isRunning 
+              ? 'bg-red-600 animate-pulse scale-110 rotate-0' 
+              : 'bg-white text-black hover:scale-105 active:scale-90'
+          }`}
         >
-          {isRunning ? <IconSquare /> : <IconMessage />}
+          {isRunning ? <IconSquare /> : (isMenuOpen ? <IconX /> : <IconMessage />)}
         </button>
       </div>
+
     </div>
   );
 }
