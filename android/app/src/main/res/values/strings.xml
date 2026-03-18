@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">tik tok</string>
+    <string name="title_activity_main">tik tok</string>
+    <string name="package_name">com.botscroll.app</string>
+    <string name="custom_url_scheme">com.botscroll.app</string>
+</resources>
