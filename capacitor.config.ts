@@ -1,9 +1,12 @@
-import type { CapacitorConfig } from '@capacitor/cli';
+import { CapacitorConfig } from '@capacitor/cli';
 
 const config: CapacitorConfig = {
   appId: 'com.botscroll.app',
-  appName: 'tik tok',
-  webDir: 'public'
+  appName: 'tiktok-bot',
+  webDir: 'out', // Pastikan ini 'out', bukan 'public'
+  server: {
+    androidScheme: 'https'
+  }
 };
 
 export default config;

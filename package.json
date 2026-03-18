@@ -9,9 +9,11 @@
     "lint": "eslint"
   },
   "dependencies": {
+    "@awesome-cordova-plugins/background-mode": "^8.1.0",
     "@capacitor/android": "^8.2.0",
     "@capacitor/cli": "^8.2.0",
     "@capacitor/core": "^8.2.0",
+    "cordova-plugin-background-mode": "^0.7.3",
     "next": "16.1.7",
     "react": "19.2.3",
     "react-dom": "19.2.3"
